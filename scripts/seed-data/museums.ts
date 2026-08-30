@@ -1,6 +1,11 @@
-import { Museum } from '../types';
+// seed 生成専用のデータ。アプリ本体からは参照しません（DB 投入後は Supabase が正）。
+type SeedMuseum = {
+  id: string; name: string; nameKana: string; address: string; area: string;
+  imageUrl: string; description: string; openingHours: string; closedDays: string;
+  website: string; averageRating: number; reviewCount: number;
+};
 
-export const mockMuseums: Museum[] = [
+export const mockMuseums: SeedMuseum[] = [
   {
     id: 'm1',
     name: '東京国立近代美術館',

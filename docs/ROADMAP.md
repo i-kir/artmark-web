@@ -97,9 +97,10 @@ Filmarks をそのまま移植すると失敗します。対象の性質が違�
 いまの構造のまま、壊れているところを直します。
 
 - [x] レビュー投稿の星評価が入力できない不具合を修正
-- [ ] 各ページのレスポンシブ確認（現状 PC 前提のレイアウトあり）
-- [ ] `averageRating` / `reviewCount` がモックの固定値と実レビューで二重管理になっている問題を整理
-- [ ] 404 ページ（存在しない ID を開いたときの導線）
+- [x] `averageRating` / `reviewCount` の二重管理を解消（`target_ratings` ビューに一本化）
+- [x] 404 ページ（存在しない ID を開いたときの導線）
+- [x] 主要ページのレスポンシブ調整
+- [ ] スマートフォン実機での確認
 
 ### Phase 1: バックエンド導入（最重要・2〜4週間）
 
@@ -109,12 +110,14 @@ Filmarks をそのまま移植すると失敗します。対象の性質が違�
 一体で提供され、フロントエンドから直接叩けるためバックエンドのコードをほぼ書かずに済むこと。
 無料枠で個人開発の規模なら十分で、Vercel との相性も良好です。
 
-- [ ] Supabase プロジェクト作成、`@supabase/supabase-js` 導入
-- [ ] テーブル設計（下記スキーマ案）
-- [ ] 認証（メール + Google ログイン）
-- [ ] `ReviewContext` / `ClipContext` の localStorage 実装を Supabase 呼び出しに差し替え
-- [ ] Row Level Security 設定（自分のレビューだけ編集・削除できる）
-- [ ] モックデータを DB へ投入（seed スクリプト）
+- [x] `@supabase/supabase-js` と TanStack Query を導入
+- [x] テーブル定義（`supabase/migrations/0001_init.sql`）
+- [x] 認証（マジックリンク）と `AuthContext`
+- [x] `ReviewContext` / `ClipContext` の localStorage 実装を Supabase 呼び出しに差し替え
+- [x] Row Level Security 設定
+- [x] モックデータの seed SQL 生成（`scripts/generate-seed.mjs`）
+- [ ] Supabase プロジェクトを作成し、実際に接続して動作確認（→ docs/SUPABASE.md）
+- [ ] Google ログインの追加（Supabase 側の設定のみで切り替え可能）
 
 #### スキーマ案
 

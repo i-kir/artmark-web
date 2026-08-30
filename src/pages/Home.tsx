@@ -1,44 +1,79 @@
-import React from 'react';
 import ExhibitionCard from '../components/ExhibitionCard';
 import MuseumCard from '../components/MuseumCard';
 import ReviewCard from '../components/ReviewCard';
-import { mockExhibitions } from '../data/exhibitions';
-import { mockMuseums } from '../data/museums';
-import { mockReviews } from '../data/reviews';
+import { Empty, ErrorState, Loading } from '../components/StateMessage';
+import { daysUntil } from '../lib/period';
+import { useExhibitions, useLatestReviews, useMuseums } from '../hooks/queries';
 
 export default function Home() {
-  const topExhibitions = mockExhibitions.slice(0, 6);
-  const topMuseums = mockMuseums.slice(0, 6);
-  const latestReviews = mockReviews.slice(0, 5);
+  const museums = useMuseums();
+  const exhibitions = useExhibitions();
+  const reviews = useLatestReviews(5);
+
+  const error = museums.error ?? exhibitions.error ?? reviews.error;
+  const isLoading = museums.isLoading || exhibitions.isLoading;
+
+  const ongoing = (exhibitions.data ?? []).filter(
+    (e) => daysUntil(e.startDate) <= 0 && daysUntil(e.endDate) >= 0
+  );
+  const endingSoon = [...ongoing]
+    .filter((e) => daysUntil(e.endDate) <= 30)
+    .sort((a, b) => a.endDate.localeCompare(b.endDate))
+    .slice(0, 6);
+
+  const museumNameById = new Map((museums.data ?? []).map((m) => [m.id, m.name]));
+  const targetNameOf = (targetType: string, targetId: string) =>
+    targetType === 'museum'
+      ? museumNameById.get(targetId)
+      : (exhibitions.data ?? []).find((e) => e.id === targetId)?.title;
 
   return (
     <div className="min-h-screen pb-12 bg-gray-light">
-      <div className="relative h-96 flex items-center justify-center bg-navy-dark">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="w-full h-full bg-navy opacity-80" />
-        </div>
+      <div className="relative h-72 sm:h-96 flex items-center justify-center bg-navy-dark px-4">
         <div className="relative z-10 text-center space-y-4">
-          <h1 className="text-6xl font-bold text-gold tracking-widest">ArtMark</h1>
-          <p className="text-xl text-white">美術館・展覧会を記録しよう</p>
+          <h1 className="text-4xl sm:text-6xl font-bold text-gold tracking-widest">ArtMark</h1>
+          <p className="text-lg sm:text-xl text-white">美術館・展覧会を記録しよう</p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 mt-12 space-y-16">
+        {error && <ErrorState error={error} />}
+        {isLoading && <Loading />}
+
+        {endingSoon.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold text-navy-dark mb-6 border-l-4 border-red-600 pl-3">
+              まもなく終了する展覧会
+            </h2>
+            <div className="flex overflow-x-auto gap-6 pb-4 snap-x">
+              {endingSoon.map((exhibition) => (
+                <div key={exhibition.id} className="min-w-[280px] sm:min-w-[320px] snap-start">
+                  <ExhibitionCard exhibition={exhibition} museumName={museumNameById.get(exhibition.museumId)} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section>
-          <h2 className="text-2xl font-bold text-navy-dark mb-6 border-l-4 border-gold pl-3">注目の展覧会</h2>
-          <div className="flex overflow-x-auto space-x-6 pb-4 snap-x">
-            {topExhibitions.map((exhibition) => (
-              <div key={exhibition.id} className="min-w-[280px] sm:min-w-[320px] snap-start">
-                <ExhibitionCard exhibition={exhibition} />
-              </div>
-            ))}
-          </div>
+          <h2 className="text-2xl font-bold text-navy-dark mb-6 border-l-4 border-gold pl-3">開催中の展覧会</h2>
+          {ongoing.length === 0 && !isLoading ? (
+            <Empty>開催中の展覧会はありません。</Empty>
+          ) : (
+            <div className="flex overflow-x-auto gap-6 pb-4 snap-x">
+              {ongoing.slice(0, 10).map((exhibition) => (
+                <div key={exhibition.id} className="min-w-[280px] sm:min-w-[320px] snap-start">
+                  <ExhibitionCard exhibition={exhibition} museumName={museumNameById.get(exhibition.museumId)} />
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         <section>
-          <h2 className="text-2xl font-bold text-navy-dark mb-6 border-l-4 border-gold pl-3">人気の美術館</h2>
+          <h2 className="text-2xl font-bold text-navy-dark mb-6 border-l-4 border-gold pl-3">美術館</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topMuseums.map((museum) => (
+            {(museums.data ?? []).slice(0, 6).map((museum) => (
               <MuseumCard key={museum.id} museum={museum} />
             ))}
           </div>
@@ -46,13 +81,23 @@ export default function Home() {
 
         <section>
           <h2 className="text-2xl font-bold text-navy-dark mb-6 border-l-4 border-gold pl-3">最新レビュー</h2>
-          <div className="space-y-4">
-            {latestReviews.map((review) => (
-              <ReviewCard key={review.id} review={review} showTarget={true} />
-            ))}
-          </div>
+          {reviews.isLoading ? (
+            <Loading />
+          ) : (reviews.data ?? []).length === 0 ? (
+            <Empty>まだレビューがありません。最初の一件を書いてみませんか。</Empty>
+          ) : (
+            <div className="space-y-4">
+              {(reviews.data ?? []).map((review) => (
+                <ReviewCard
+                  key={review.id}
+                  review={review}
+                  targetName={targetNameOf(review.targetType, review.targetId)}
+                />
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>
   );
-};
+}

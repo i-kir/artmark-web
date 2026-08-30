@@ -1,6 +1,11 @@
-import { Exhibition } from '../types';
+// seed 生成専用のデータ。アプリ本体からは参照しません（DB 投入後は Supabase が正）。
+type SeedExhibition = {
+  id: string; museumId: string; title: string; imageUrl: string; description: string;
+  startDate: string; endDate: string; price: string; genre: string[];
+  averageRating: number; reviewCount: number;
+};
 
-export const mockExhibitions: Exhibition[] = [
+export const mockExhibitions: SeedExhibition[] = [
   {
     id: 'e1',
     museumId: 'm1',

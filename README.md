@@ -13,6 +13,8 @@
 | UI | React 18 + TypeScript 5.6 |
 | ルーティング | React Router 6 |
 | スタイル | Tailwind CSS 3 |
+| データ / 認証 | Supabase (PostgreSQL, Auth) |
+| データ取得 | TanStack Query |
 | Lint | ESLint 9 (typescript-eslint) |
 | ホスティング | Vercel |
 
@@ -20,8 +22,13 @@
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
+cp .env.example .env.local   # Supabase の URL と anon key を記入
+npm run dev                  # http://localhost:5173
 ```
+
+Supabase プロジェクトの作成からテーブル投入までの手順は
+[docs/SUPABASE.md](docs/SUPABASE.md) を参照してください。
+環境変数が未設定の場合、画面に設定を促すメッセージが表示されます。
 
 ## スクリプト
 
@@ -36,12 +43,18 @@ npm run dev      # http://localhost:5173
 
 ```
 src/
+├── api/          Supabase へのクエリ（masters, ratings, reviews, clips）
+├── hooks/        TanStack Query のフック群
+├── lib/          Supabase クライアント、会期計算などの純粋な関数
 ├── components/   カード・星評価・クリップボタンなどの共通 UI
-├── contexts/     ReviewContext（レビュー）/ ClipContext（行きたい・行った）
-├── data/         モックデータ（美術館 10 / 展覧会 15 / レビュー 20 件）
-├── pages/        Home, Search, MyPage, MuseumDetail, ExhibitionDetail, ReviewNew
-├── types/        Museum, Exhibition, Review, User, ClipStatus
-└── App.tsx       ルーティング定義
+├── contexts/     AuthContext（セッションとプロフィール）
+├── pages/        Home, Search, MyPage, 詳細ページ, ReviewNew, Login ほか
+├── types/        Museum, Exhibition, Review, Profile, Clip
+└── App.tsx       ルーティングと Provider の定義
+
+supabase/migrations/  スキーマ（0001）と初期データ（0002）
+scripts/              seed SQL の生成スクリプトと、その元データ
+docs/                 セットアップ・デプロイ・ロードマップ
 ```
 
 `@` は `src` のエイリアスです（`vite.config.ts` / `tsconfig.app.json`）。
@@ -54,8 +67,9 @@ src/
 | `/search` | 検索（エリア・ジャンル・キーワード） |
 | `/museum/:id` | 美術館詳細 |
 | `/exhibition/:id` | 展覧会詳細 |
-| `/review/new` | レビュー投稿 |
-| `/mypage` | マイページ（クリップ一覧・自分のレビュー） |
+| `/review/new` | レビュー投稿（要ログイン） |
+| `/mypage` | マイページ（クリップ一覧・自分のレビュー、要ログイン） |
+| `/login` | ログイン・新規登録（マジックリンク） |
 
 ## デプロイ
 
@@ -65,6 +79,8 @@ src/
 - ビルドコマンド: `npm run build`
 - 出力ディレクトリ: `dist`
 - SPA のリライト設定は `vercel.json` に定義済み
+- Vercel 側にも `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` の設定が必要です
+  （環境変数はビルド時に埋め込まれるため、追加後は再デプロイしてください）
 
 ## 開発フロー
 
@@ -80,9 +96,10 @@ GitHub でプルリクエストを作成 → Vercel のプレビュー URL で�
 
 ## データの保持について
 
-レビューとクリップ（行きたい／行った）はブラウザの localStorage に保存されます
-（キー: `@artmark_reviews` / `@artmark_clips`）。
-そのため同じブラウザなら再訪時も残りますが、端末をまたいだ共有はできません。
+レビューとクリップは Supabase に保存され、端末をまたいで共有されます。
+レビューは誰でも読めますが、クリップ（行きたい／行った）は本人にしか見えません。
+アクセス制御は Row Level Security で行っています。詳細は
+[docs/SUPABASE.md](docs/SUPABASE.md) の「データ設計のポイント」を参照してください。
 
 ## 今後の方針
 

@@ -1,54 +1,79 @@
-import React, { useState } from 'react';
-import { useClips, type ClipKey } from '../contexts/ClipContext';
-import { useReviews } from '../contexts/ReviewContext';
+import { useMemo, useState } from 'react';
 import ExhibitionCard from '../components/ExhibitionCard';
 import MuseumCard from '../components/MuseumCard';
 import ReviewCard from '../components/ReviewCard';
-import { mockExhibitions } from '../data/exhibitions';
-import { mockMuseums } from '../data/museums';
+import { Empty, ErrorState, Loading } from '../components/StateMessage';
+import { useAuth } from '../contexts/AuthContext';
+import { useExhibitions, useMuseums, useMyClips, useMyReviews } from '../hooks/queries';
+import type { Clip, TargetType } from '../types';
 
 type Tab = 'visited' | 'want' | 'reviews';
 
+const TABS: { value: Tab; label: string }[] = [
+  { value: 'visited', label: '行った' },
+  { value: 'want', label: '行きたい' },
+  { value: 'reviews', label: 'レビュー' },
+];
+
 export default function MyPage() {
   const [activeTab, setActiveTab] = useState<Tab>('visited');
-  const { getClipsByStatus } = useClips();
-  const { reviews } = useReviews();
+  const { profile, session } = useAuth();
+  const clips = useMyClips();
+  const reviews = useMyReviews();
+  const museums = useMuseums();
+  const exhibitions = useExhibitions();
 
-  const visitedClips = getClipsByStatus('visited');
-  const wantToGoClips = getClipsByStatus('want');
+  const error = clips.error ?? reviews.error ?? museums.error ?? exhibitions.error;
 
-  const getTarget = (targetType: string, targetId: string) => {
-    if (targetType === 'museum') return mockMuseums.find((m) => m.id === targetId);
-    return mockExhibitions.find((e) => e.id === targetId);
-  };
+  const museumById = useMemo(() => new Map((museums.data ?? []).map((m) => [m.id, m])), [museums.data]);
+  const exhibitionById = useMemo(
+    () => new Map((exhibitions.data ?? []).map((e) => [e.id, e])),
+    [exhibitions.data]
+  );
 
-  const renderClips = (clips: ClipKey[]) => {
-    if (clips.length === 0) return <div className="text-center py-12 text-gray-dark">まだ記録がありません。</div>;
+  const targetNameOf = (targetType: TargetType, targetId: string) =>
+    targetType === 'museum' ? museumById.get(targetId)?.name : exhibitionById.get(targetId)?.title;
+
+  const visitedClips = (clips.data ?? []).filter((c) => c.status === 'visited');
+  const wantClips = (clips.data ?? []).filter((c) => c.status === 'want');
+
+  const renderClips = (list: Clip[]) => {
+    if (clips.isLoading) return <Loading />;
+    if (list.length === 0) return <Empty>まだ記録がありません。</Empty>;
+
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {clips.map((clip) => {
-          const target = getTarget(clip.targetType, clip.targetId);
-          if (!target) return null;
+        {list.map((clip) => {
           const key = `${clip.targetType}_${clip.targetId}`;
-          return 'title' in target ? (
-            <ExhibitionCard key={key} exhibition={target} />
-          ) : (
-            <MuseumCard key={key} museum={target} />
-          );
+          if (clip.targetType === 'museum') {
+            const museum = museumById.get(clip.targetId);
+            return museum ? <MuseumCard key={key} museum={museum} /> : null;
+          }
+          const exhibition = exhibitionById.get(clip.targetId);
+          return exhibition ? (
+            <ExhibitionCard
+              key={key}
+              exhibition={exhibition}
+              museumName={museumById.get(exhibition.museumId)?.name}
+            />
+          ) : null;
         })}
       </div>
     );
   };
 
+  const displayName = profile?.displayName || session?.user.email || 'ユーザー';
+
   return (
     <div className="min-h-screen bg-gray-light">
       <div className="bg-navy-dark text-white pt-12 pb-8">
         <div className="max-w-6xl mx-auto px-4 flex flex-col items-center space-y-4">
-          <div className="w-24 h-24 bg-navy-medium rounded-full flex items-center justify-center border-2 border-gold">
-            <span className="mr-1">👤</span>
+          <div className="w-24 h-24 bg-navy-medium rounded-full grid place-items-center border-2 border-gold text-3xl">
+            {displayName.slice(0, 1).toUpperCase()}
           </div>
-          <h1 className="text-2xl font-bold">ゲストユーザー</h1>
-          
+          <h1 className="text-2xl font-bold">{displayName}</h1>
+          {profile?.handle && <p className="text-sm text-gray-400">@{profile.handle}</p>}
+
           <div className="flex gap-8 mt-6 bg-navy-medium px-8 py-4 rounded-lg">
             <div className="text-center">
               <div className="text-sm text-gray-400">行った</div>
@@ -56,52 +81,55 @@ export default function MyPage() {
             </div>
             <div className="text-center">
               <div className="text-sm text-gray-400">行きたい</div>
-              <div className="text-xl font-bold text-gold">{wantToGoClips.length}</div>
+              <div className="text-xl font-bold text-gold">{wantClips.length}</div>
             </div>
             <div className="text-center">
               <div className="text-sm text-gray-400">レビュー</div>
-              <div className="text-xl font-bold text-gold">{reviews.length}</div>
+              <div className="text-xl font-bold text-gold">{(reviews.data ?? []).length}</div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {error && <ErrorState error={error} />}
+
         <div className="flex border-b border-gray-300 mb-8">
-          <button
-            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors ${activeTab === 'visited' ? 'border-gold text-navy-dark' : 'border-transparent text-gray-medium hover:text-navy-medium'}`}
-            onClick={() => setActiveTab('visited')}
-          >
-            行った
-          </button>
-          <button
-            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors ${activeTab === 'want' ? 'border-gold text-navy-dark' : 'border-transparent text-gray-medium hover:text-navy-medium'}`}
-            onClick={() => setActiveTab('want')}
-          >
-            行きたい
-          </button>
-          <button
-            className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors ${activeTab === 'reviews' ? 'border-gold text-navy-dark' : 'border-transparent text-gray-medium hover:text-navy-medium'}`}
-            onClick={() => setActiveTab('reviews')}
-          >
-            レビュー
-          </button>
+          {TABS.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => setActiveTab(tab.value)}
+              className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors ${
+                activeTab === tab.value
+                  ? 'border-gold text-navy-dark'
+                  : 'border-transparent text-gray-medium hover:text-navy-medium'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        <div>
-          {activeTab === 'visited' && renderClips(visitedClips)}
-          {activeTab === 'want' && renderClips(wantToGoClips)}
-          {activeTab === 'reviews' && (
+        {activeTab === 'visited' && renderClips(visitedClips)}
+        {activeTab === 'want' && renderClips(wantClips)}
+        {activeTab === 'reviews' &&
+          (reviews.isLoading ? (
+            <Loading />
+          ) : (reviews.data ?? []).length === 0 ? (
+            <Empty>まだレビューがありません。</Empty>
+          ) : (
             <div className="space-y-4 max-w-3xl mx-auto">
-              {reviews.length === 0 ? (
-                <div className="text-center py-12 text-gray-dark">まだレビューがありません。</div>
-              ) : (
-                reviews.map((review) => <ReviewCard key={review.id} review={review} showTarget={true} />)
-              )}
+              {(reviews.data ?? []).map((review) => (
+                <ReviewCard
+                  key={review.id}
+                  review={review}
+                  targetName={targetNameOf(review.targetType, review.targetId)}
+                />
+              ))}
             </div>
-          )}
-        </div>
+          ))}
       </div>
     </div>
   );
-};
+}

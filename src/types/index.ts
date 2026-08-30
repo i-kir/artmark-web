@@ -11,6 +11,23 @@ export interface Profile {
   bio: string;
 }
 
+export interface ProfileStats {
+  followerCount: number;
+  followingCount: number;
+  reviewCount: number;
+}
+
+export type Author = Pick<Profile, 'handle' | 'displayName' | 'avatarUrl'>;
+
+export interface Comment {
+  id: string;
+  reviewId: string;
+  userId: string;
+  body: string;
+  createdAt: string;
+  author: Author | null;
+}
+
 export interface Rating {
   averageRating: number;
   reviewCount: number;
@@ -54,7 +71,10 @@ export interface Review {
   visitDate: string | null;
   hasSpoiler: boolean;
   createdAt: string;
-  author: Pick<Profile, 'handle' | 'displayName' | 'avatarUrl'> | null;
+  author: Author | null;
+  tags: string[];
+  likeCount: number;
+  commentCount: number;
 }
 
 export interface Clip {

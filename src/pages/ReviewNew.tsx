@@ -21,6 +21,17 @@ export default function ReviewNew() {
   const [comment, setComment] = useState('');
   const [visitDate, setVisitDate] = useState('');
   const [hasSpoiler, setHasSpoiler] = useState(false);
+  const [tagInput, setTagInput] = useState('');
+
+  // 「#2026年鑑賞 #現代アート」のような自由入力を配列にする
+  const tags = Array.from(
+    new Set(
+      tagInput
+        .split(/[\s,\u3001\u3000]+/)
+        .map((t) => t.replace(/^#/, '').trim())
+        .filter((t) => t.length > 0 && t.length <= 30)
+    )
+  );
 
   if (museums.isLoading || exhibitions.isLoading) return <Loading />;
 
@@ -41,6 +52,7 @@ export default function ReviewNew() {
       comment: comment.trim(),
       visitDate: visitDate || null,
       hasSpoiler,
+      tags,
     });
     navigate(`/${targetType}/${targetId}`, { replace: true });
   };
@@ -109,6 +121,32 @@ export default function ReviewNew() {
                 />
                 展示内容のネタバレを含む
               </label>
+            </div>
+
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-dark mb-2">
+                タグ
+              </label>
+              <input
+                id="tags"
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder="#2026年鑑賞 #現代アート"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                スペース区切りで複数指定できます。同じタグの付いたレビューをまとめて読めます。
+              </p>
+              {tags.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {tags.map((tag) => (
+                    <span key={tag} className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-navy-accent">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {saveReview.error && <ErrorState error={saveReview.error} />}

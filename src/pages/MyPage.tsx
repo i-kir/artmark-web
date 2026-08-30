@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import ExhibitionCard from '../components/ExhibitionCard';
 import MuseumCard from '../components/MuseumCard';
-import ReviewCard from '../components/ReviewCard';
+import ReviewList from '../components/ReviewList';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import { useAuth } from '../contexts/AuthContext';
-import { useExhibitions, useMuseums, useMyClips, useMyReviews } from '../hooks/queries';
-import type { Clip, TargetType } from '../types';
+import { useExhibitions, useMuseums, useMyClips, useMyReviews, useProfileStats } from '../hooks/queries';
+import { useTargetNames } from '../hooks/useTargetNames';
+import { Link } from 'react-router-dom';
+import type { Clip } from '../types';
 
 type Tab = 'visited' | 'want' | 'reviews';
 
@@ -17,7 +19,9 @@ const TABS: { value: Tab; label: string }[] = [
 
 export default function MyPage() {
   const [activeTab, setActiveTab] = useState<Tab>('visited');
-  const { profile, session } = useAuth();
+  const { profile, session, userId } = useAuth();
+  const stats = useProfileStats(userId);
+  const { nameOf } = useTargetNames();
   const clips = useMyClips();
   const reviews = useMyReviews();
   const museums = useMuseums();
@@ -30,9 +34,6 @@ export default function MyPage() {
     () => new Map((exhibitions.data ?? []).map((e) => [e.id, e])),
     [exhibitions.data]
   );
-
-  const targetNameOf = (targetType: TargetType, targetId: string) =>
-    targetType === 'museum' ? museumById.get(targetId)?.name : exhibitionById.get(targetId)?.title;
 
   const visitedClips = (clips.data ?? []).filter((c) => c.status === 'visited');
   const wantClips = (clips.data ?? []).filter((c) => c.status === 'want');
@@ -74,7 +75,7 @@ export default function MyPage() {
           <h1 className="text-2xl font-bold">{displayName}</h1>
           {profile?.handle && <p className="text-sm text-gray-400">@{profile.handle}</p>}
 
-          <div className="flex gap-8 mt-6 bg-navy-medium px-8 py-4 rounded-lg">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-6 bg-navy-medium px-6 sm:px-8 py-4 rounded-lg">
             <div className="text-center">
               <div className="text-sm text-gray-400">行った</div>
               <div className="text-xl font-bold text-gold">{visitedClips.length}</div>
@@ -87,7 +88,32 @@ export default function MyPage() {
               <div className="text-sm text-gray-400">レビュー</div>
               <div className="text-xl font-bold text-gold">{(reviews.data ?? []).length}</div>
             </div>
+            <div className="text-center">
+              <div className="text-sm text-gray-400">フォロー中</div>
+              <div className="text-xl font-bold text-gold">{stats.data?.followingCount ?? 0}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-gray-400">フォロワー</div>
+              <div className="text-xl font-bold text-gold">{stats.data?.followerCount ?? 0}</div>
+            </div>
           </div>
+
+          {profile?.handle && (
+            <div className="flex gap-3">
+              <Link
+                to={`/u/${profile.handle}`}
+                className="rounded-full border border-gray-500 px-4 py-1.5 text-sm transition hover:bg-navy-medium"
+              >
+                公開プロフィール
+              </Link>
+              <Link
+                to="/settings/profile"
+                className="rounded-full border border-gray-500 px-4 py-1.5 text-sm transition hover:bg-navy-medium"
+              >
+                編集
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -119,14 +145,8 @@ export default function MyPage() {
           ) : (reviews.data ?? []).length === 0 ? (
             <Empty>まだレビューがありません。</Empty>
           ) : (
-            <div className="space-y-4 max-w-3xl mx-auto">
-              {(reviews.data ?? []).map((review) => (
-                <ReviewCard
-                  key={review.id}
-                  review={review}
-                  targetName={targetNameOf(review.targetType, review.targetId)}
-                />
-              ))}
+            <div className="max-w-3xl mx-auto">
+              <ReviewList reviews={reviews.data ?? []} targetNameOf={nameOf} />
             </div>
           ))}
       </div>

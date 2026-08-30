@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Profile } from '../types';
@@ -8,6 +8,8 @@ interface AuthContextType {
   userId: string | null;
   profile: Profile | null;
   loading: boolean;
+  /** プロフィール更新後に再読み込みする */
+  refreshProfile: () => Promise<void>;
   /** マジックリンク（パスワード不要） */
   signInWithEmail: (email: string) => Promise<void>;
   signInWithPassword: (email: string, password: string) => Promise<void>;
@@ -37,38 +39,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const userId = session?.user.id;
+  const userId = session?.user.id ?? null;
+
+  const loadProfile = useCallback(async () => {
     if (!userId) {
       setProfile(null);
       return;
     }
-
-    let cancelled = false;
-    supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('id, handle, display_name, avatar_url, bio')
       .eq('id', userId)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (error || !data) {
-          setProfile(null);
-          return;
-        }
-        setProfile({
-          id: data.id,
-          handle: data.handle,
-          displayName: data.display_name,
-          avatarUrl: data.avatar_url,
-          bio: data.bio,
-        });
-      });
+      .maybeSingle();
+    if (error || !data) {
+      setProfile(null);
+      return;
+    }
+    setProfile({
+      id: data.id,
+      handle: data.handle,
+      displayName: data.display_name,
+      avatarUrl: data.avatar_url,
+      bio: data.bio,
+    });
+  }, [userId]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [session?.user.id]);
+  useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
 
   const signInWithEmail = async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
@@ -103,9 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         session,
-        userId: session?.user.id ?? null,
+        userId,
         profile,
         loading,
+        refreshProfile: loadProfile,
         signInWithEmail,
         signInWithPassword,
         signUpWithPassword,

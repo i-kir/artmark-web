@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import ClipControl from '../components/ClipControl';
 import ExhibitionCard from '../components/ExhibitionCard';
-import ReviewCard from '../components/ReviewCard';
+import ReviewList from '../components/ReviewList';
 import StarRating from '../components/StarRating';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import NotFound from './NotFound';
@@ -100,11 +100,7 @@ export default function MuseumDetail() {
           ) : (reviews.data ?? []).length === 0 ? (
             <Empty>まだレビューがありません。</Empty>
           ) : (
-            <div className="space-y-4">
-              {(reviews.data ?? []).map((review) => (
-                <ReviewCard key={review.id} review={review} />
-              ))}
-            </div>
+            <ReviewList reviews={reviews.data ?? []} />
           )}
         </section>
       </div>

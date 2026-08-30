@@ -1,9 +1,10 @@
 import ExhibitionCard from '../components/ExhibitionCard';
 import MuseumCard from '../components/MuseumCard';
-import ReviewCard from '../components/ReviewCard';
+import ReviewList from '../components/ReviewList';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import { daysUntil } from '../lib/period';
 import { useExhibitions, useLatestReviews, useMuseums, useRatings } from '../hooks/queries';
+import { useTargetNames } from '../hooks/useTargetNames';
 
 export default function Home() {
   const museums = useMuseums();
@@ -23,10 +24,7 @@ export default function Home() {
     .slice(0, 6);
 
   const museumNameById = new Map((museums.data ?? []).map((m) => [m.id, m.name]));
-  const targetNameOf = (targetType: string, targetId: string) =>
-    targetType === 'museum'
-      ? museumNameById.get(targetId)
-      : (exhibitions.data ?? []).find((e) => e.id === targetId)?.title;
+  const { nameOf } = useTargetNames();
 
   return (
     <div className="min-h-screen pb-12 bg-gray-light">
@@ -87,15 +85,7 @@ export default function Home() {
           ) : (reviews.data ?? []).length === 0 ? (
             <Empty>まだレビューがありません。最初の一件を書いてみませんか。</Empty>
           ) : (
-            <div className="space-y-4">
-              {(reviews.data ?? []).map((review) => (
-                <ReviewCard
-                  key={review.id}
-                  review={review}
-                  targetName={targetNameOf(review.targetType, review.targetId)}
-                />
-              ))}
-            </div>
+            <ReviewList reviews={reviews.data ?? []} targetNameOf={nameOf} />
           )}
         </section>
       </div>

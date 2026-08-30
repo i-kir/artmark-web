@@ -13,6 +13,11 @@ import ReviewNew from './pages/ReviewNew';
 import Login from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
 import NotFound from './pages/NotFound';
+import Profile from './pages/Profile';
+import ProfileEdit from './pages/ProfileEdit';
+import Timeline from './pages/Timeline';
+import Users from './pages/Users';
+import Tag from './pages/Tag';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +38,9 @@ export default function App() {
                 <Route path="/search" element={<Search />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/u/:handle" element={<Profile />} />
+                <Route path="/tag/:tag" element={<Tag />} />
                 <Route path="/museum/:id" element={<MuseumDetail />} />
                 <Route path="/exhibition/:id" element={<ExhibitionDetail />} />
                 <Route
@@ -48,6 +56,22 @@ export default function App() {
                   element={
                     <RequireAuth>
                       <ReviewNew />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/timeline"
+                  element={
+                    <RequireAuth>
+                      <Timeline />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/settings/profile"
+                  element={
+                    <RequireAuth>
+                      <ProfileEdit />
                     </RequireAuth>
                   }
                 />

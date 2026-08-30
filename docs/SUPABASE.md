@@ -43,9 +43,17 @@ ArtMark のデータと認証は Supabase（PostgreSQL + 認証）に置いて�
 | Site URL | `https://artmark-web.vercel.app` |
 | Redirect URLs | `http://localhost:5173/**` と `https://artmark-web.vercel.app/**` の2つを追加 |
 
-**Authentication → Providers → Email** で、
-`Confirm email` が ON、`Enable Email provider` が ON になっていることを確認してください
-（マジックリンクはこの設定で動きます。パスワードは使いません）。
+**Authentication → Sign In / Providers → Email** で、
+`Enable Email provider` と `Confirm email` が ON になっていることを確認してください。
+
+ログイン方法は2つ用意しています。
+
+- **マジックリンク**: メールのリンクを開くだけ。パスワード不要
+- **パスワード**: メールアドレス + パスワード（6文字以上）
+
+開発中にメールを使わずログインしたいときは、**Authentication → Users → Add user** で
+**Auto Confirm User を ON** にしてユーザーを作り、パスワードタブからログインしてください。
+`Confirm email` を OFF にする方法もありますが、他人のアドレスで登録できてしまうため推奨しません。
 
 > 無料枠のメール送信は 1時間あたり数通の制限があります。
 > 開発中に連続でログインを試すと詰まるので、その場合は少し待ってください。

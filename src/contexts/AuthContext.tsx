@@ -8,7 +8,11 @@ interface AuthContextType {
   userId: string | null;
   profile: Profile | null;
   loading: boolean;
+  /** マジックリンク（パスワード不要） */
   signInWithEmail: (email: string) => Promise<void>;
+  signInWithPassword: (email: string, password: string) => Promise<void>;
+  /** 戻り値は「確認メールの送信が必要か」。false ならその場でログイン済み */
+  signUpWithPassword: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
 }
 
@@ -74,6 +78,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
   };
 
+  const signInWithPassword = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  };
+
+  const signUpWithPassword = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) throw error;
+    // メール確認が有効な場合、session は null で返る
+    return data.session === null;
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -87,6 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         profile,
         loading,
         signInWithEmail,
+        signInWithPassword,
+        signUpWithPassword,
         signOut,
       }}
     >

@@ -112,11 +112,13 @@ Filmarks をそのまま移植すると失敗します。対象の性質が違�
 
 - [x] `@supabase/supabase-js` と TanStack Query を導入
 - [x] テーブル定義（`supabase/migrations/0001_init.sql`）
-- [x] 認証（マジックリンク）と `AuthContext`
+- [x] 認証（マジックリンク + パスワード）と `AuthContext`
 - [x] `ReviewContext` / `ClipContext` の localStorage 実装を Supabase 呼び出しに差し替え
 - [x] Row Level Security 設定
 - [x] モックデータの seed SQL 生成（`scripts/generate-seed.mjs`）
-- [ ] Supabase プロジェクトを作成し、実際に接続して動作確認（→ docs/SUPABASE.md）
+- [x] Supabase プロジェクトを作成し、ローカルで接続・ログイン・レビュー投稿を確認
+- [ ] Vercel に環境変数を設定して本番でも動かす
+- [ ] 独自 SMTP（Resend など）の設定 — 無料枠の送信制限は 1時間あたり 2通
 - [ ] Google ログインの追加（Supabase 側の設定のみで切り替え可能）
 
 #### スキーマ案

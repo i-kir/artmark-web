@@ -130,7 +130,10 @@ anon key は誰でも見られる前提なので、「誰が何を読み書き�
 | 症状 | 原因と対処 |
 | --- | --- |
 | 画面に「Supabase に接続できていません」と出る | `.env.local` がないか、開発サーバーを再起動していない |
-| ログインリンクを開くと `localhost` に飛んでしまう | Supabase の Site URL / Redirect URLs が未設定 |
+| `Failed to fetch` が出る | Vite は起動時にしか `.env.local` を読まない。`Ctrl+C` で止めて `npm run dev` をやり直す |
+| メールのリンクが本番 URL に飛ぶ | `redirect_to` にパスが付いていなければ Site URL への差し戻し。Redirect URLs に `http://localhost:5173/**` を登録してから**送り直す**（リンクは1回限り有効） |
 | メールが届かない | 迷惑メールフォルダを確認。無料枠の送信レート制限にかかっている可能性もある |
 | データは入っているのに一覧が空 | RLS の select ポリシーが作られていない。`0001_init.sql` の後半を再実行 |
+| `Could not embed because more than one relationship was found` | テーブル間に関係が複数あるため曖昧。`profiles!reviews_user_id_fkey` のように外部キー名で明示する |
 | 本番だけ動かない | Vercel の環境変数を追加後に再デプロイしていない |
+| `Cannot find module @rollup/rollup-darwin-arm64` | 別 OS で `npm install` された `node_modules` が残っている。`rm -rf node_modules && npm install` で入れ直す |

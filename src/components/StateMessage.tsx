@@ -1,5 +1,23 @@
 import { isSupabaseConfigured } from '../lib/supabase';
 
+/** Supabase のエラーは Error インスタンスではなく { message, details, hint, code } の素のオブジェクト */
+function describe(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') {
+    const e = error as Record<string, unknown>;
+    const lines = (['message', 'code', 'details', 'hint'] as const)
+      .filter((k) => e[k])
+      .map((k) => `${k}: ${typeof e[k] === 'string' ? e[k] : JSON.stringify(e[k])}`);
+    if (lines.length > 0) return lines.join('\n');
+    try {
+      return JSON.stringify(error, null, 2);
+    } catch {
+      return String(error);
+    }
+  }
+  return String(error);
+}
+
 export function Loading({ label = '読み込み中...' }: { label?: string }) {
   return <div className="py-12 text-center text-gray-500">{label}</div>;
 }
@@ -24,11 +42,10 @@ export function ErrorState({ error }: { error: unknown }) {
     );
   }
 
-  const message = error instanceof Error ? error.message : String(error);
   return (
     <div className="my-8 rounded-lg border border-red-300 bg-red-50 p-6 text-sm text-red-800">
       <p className="font-bold mb-2">データを取得できませんでした</p>
-      <p className="font-mono break-all">{message}</p>
+      <pre className="whitespace-pre-wrap break-all font-mono text-xs">{describe(error)}</pre>
     </div>
   );
 }

@@ -14,7 +14,8 @@ type ReviewRow = {
   author: { handle: string; display_name: string; avatar_url: string | null } | null;
 };
 
-const SELECT = '*, author:profiles(handle, display_name, avatar_url)';
+// reviews と profiles は user_id 経由と likes 経由の2つの関係があるため、外部キーを明示する
+const SELECT = '*, author:profiles!reviews_user_id_fkey(handle, display_name, avatar_url)';
 
 const toReview = (r: ReviewRow): Review => ({
   id: r.id,

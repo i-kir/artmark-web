@@ -3,14 +3,15 @@ import MuseumCard from '../components/MuseumCard';
 import ReviewCard from '../components/ReviewCard';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import { daysUntil } from '../lib/period';
-import { useExhibitions, useLatestReviews, useMuseums } from '../hooks/queries';
+import { useExhibitions, useLatestReviews, useMuseums, useRatings } from '../hooks/queries';
 
 export default function Home() {
   const museums = useMuseums();
   const exhibitions = useExhibitions();
   const reviews = useLatestReviews(5);
+  const ratings = useRatings();
 
-  const error = museums.error ?? exhibitions.error ?? reviews.error;
+  const error = museums.error ?? exhibitions.error ?? reviews.error ?? ratings.error;
   const isLoading = museums.isLoading || exhibitions.isLoading;
 
   const ongoing = (exhibitions.data ?? []).filter(

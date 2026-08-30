@@ -10,7 +10,8 @@ export default function ReviewNew() {
   const navigate = useNavigate();
   const { addReview } = useReviews();
 
-  const targetType = searchParams.get('targetType') as 'museum' | 'exhibition';
+  const targetType: 'museum' | 'exhibition' =
+    searchParams.get('targetType') === 'museum' ? 'museum' : 'exhibition';
   const targetId = searchParams.get('targetId') || '';
 
   const [rating, setRating] = useState(0);
@@ -21,9 +22,7 @@ export default function ReviewNew() {
     ? mockMuseums.find(m => m.id === targetId)
     : mockExhibitions.find(e => e.id === targetId);
 
-  const targetName = target
-    ? (targetType === 'museum' ? (target as any).name : (target as any).title)
-    : '';
+  const targetName = target ? ('title' in target ? target.title : target.name) : '';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +59,13 @@ export default function ReviewNew() {
           <form onSubmit={handleSubmit} className="space-y-8">
             <div>
               <label className="block text-sm font-medium text-gray-dark mb-2">評価 <span className="text-red-500">*</span></label>
-              <span className="text-xl">⭐</span>
+              <StarRating
+                rating={rating}
+                size="lg"
+                interactive
+                showValue={false}
+                onRatingChange={setRating}
+              />
             </div>
 
             <div>

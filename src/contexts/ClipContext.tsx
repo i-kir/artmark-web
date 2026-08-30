@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ClipStatus } from '@/types';
 
-interface ClipKey {
+export interface ClipKey {
   targetType: 'museum' | 'exhibition';
   targetId: string;
 }
@@ -64,12 +64,12 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getClipsByStatus = (status: ClipStatus): ClipKey[] => {
     return Object.entries(clips)
-      .filter(([_, clipStatus]) => clipStatus === status)
-      .map(([key, _]) => {
-        const [targetType, targetId] = key.split('_');
-        return { 
-          targetType: targetType as 'museum' | 'exhibition', 
-          targetId 
+      .filter(([, clipStatus]) => clipStatus === status)
+      .map(([key]) => {
+        const [targetType, ...rest] = key.split('_');
+        return {
+          targetType: targetType as 'museum' | 'exhibition',
+          targetId: rest.join('_'),
         };
       });
   };

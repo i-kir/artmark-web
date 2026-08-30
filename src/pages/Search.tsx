@@ -15,7 +15,7 @@ export default function Search() {
   const filteredExhibitions = useMemo(() => {
     return mockExhibitions.filter((ex) => {
       const matchSearch = ex.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchGenre = selectedGenre === '全て' || ex.genre.includes(selectedGenre as any);
+      const matchGenre = selectedGenre === '全て' || ex.genre.includes(selectedGenre);
       return matchSearch && matchGenre;
     });
   }, [searchTerm, selectedGenre]);

@@ -7,9 +7,11 @@ type StarRatingProps = {
   onRatingChange?: (r: number) => void;
   showCount?: boolean;
   count?: number;
+  /** 星の横に数値を表示するか。入力用途では false を指定する。 */
+  showValue?: boolean;
 };
 
-export default function StarRating({ rating, size = 'md', interactive = false, onRatingChange, showCount = false, count = 0 }: StarRatingProps) {
+export default function StarRating({ rating, size = 'md', interactive = false, onRatingChange, showCount = false, count = 0, showValue = true }: StarRatingProps) {
   const [hoverRating, setHoverRating] = useState<number>(0);
   
   const sizeClass = size === 'sm' ? 'text-sm' : size === 'lg' ? 'text-2xl' : 'text-base';
@@ -33,12 +35,13 @@ export default function StarRating({ rating, size = 'md', interactive = false, o
             onClick={() => handleStarClick(star)}
             onMouseEnter={() => interactive && setHoverRating(star)}
             disabled={!interactive}
+            aria-label={`${star}つ星`}
           >
             ★
           </button>
         ))}
       </div>
-      <span className="ml-1 text-gray-700 font-medium">{rating.toFixed(1)}</span>
+      {showValue && <span className="ml-1 text-gray-700 font-medium">{rating.toFixed(1)}</span>}
       {showCount && <span className="ml-2 text-gray-500 text-sm">({count})</span>}
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useClips } from '../contexts/ClipContext';
+import { useClips, type ClipKey } from '../contexts/ClipContext';
 import { useReviews } from '../contexts/ReviewContext';
 import ExhibitionCard from '../components/ExhibitionCard';
 import MuseumCard from '../components/MuseumCard';
@@ -22,17 +22,18 @@ export default function MyPage() {
     return mockExhibitions.find((e) => e.id === targetId);
   };
 
-  const renderClips = (clips: any[]) => {
+  const renderClips = (clips: ClipKey[]) => {
     if (clips.length === 0) return <div className="text-center py-12 text-gray-dark">まだ記録がありません。</div>;
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {clips.map((clip) => {
           const target = getTarget(clip.targetType, clip.targetId);
           if (!target) return null;
-          return clip.targetType === 'museum' ? (
-            <MuseumCard key={clip.id} museum={target as any} />
+          const key = `${clip.targetType}_${clip.targetId}`;
+          return 'title' in target ? (
+            <ExhibitionCard key={key} exhibition={target} />
           ) : (
-            <ExhibitionCard key={clip.id} exhibition={target as any} />
+            <MuseumCard key={key} museum={target} />
           );
         })}
       </div>

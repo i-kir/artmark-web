@@ -19,6 +19,7 @@ import ProfileEdit from './pages/ProfileEdit';
 import Timeline from './pages/Timeline';
 import Users from './pages/Users';
 import Tag from './pages/Tag';
+import ExhibitionEdit from './pages/ExhibitionEdit';
 import { Loading } from './components/StateMessage';
 
 // 地図ページはそのページを開いたときだけ読み込む（Leaflet 本体は MuseumMap 側で遅延読み込み）
@@ -63,6 +64,22 @@ export default function App() {
                     element={
                       <RequireAuth>
                         <ReviewNew />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/exhibition/new"
+                    element={
+                      <RequireAuth>
+                        <ExhibitionEdit />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/exhibition/:id/edit"
+                    element={
+                      <RequireAuth>
+                        <ExhibitionEdit />
                       </RequireAuth>
                     }
                   />

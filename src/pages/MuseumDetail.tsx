@@ -102,7 +102,13 @@ export default function MuseumDetail() {
               ))}
             </div>
           ) : (
-            <Empty>登録されている展覧会はありません。</Empty>
+            <Empty>
+              登録されている展覧会はありません。
+              <br />
+              <Link to="/exhibition/new" className="text-navy-accent underline">
+                展覧会を登録する
+              </Link>
+            </Empty>
           )}
         </section>
 

@@ -31,8 +31,14 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!.env.scripts.example
 
 # Build/tooling artifacts
 *.tsbuildinfo
 vite.config.ts.timestamp-*
 _to_delete/
+
+# データ収集スクリプト用（service_role キーを含むため絶対にコミットしない）
+.env.scripts
+scripts/data/.cache/
+scripts/data/data/

@@ -1,0 +1,42 @@
+{
+  "_readme": [
+    "巡回取得の対象一覧です。1件追加するたびに、必ず次の3つを確認してください。",
+    "1. そのサイトの利用規約に、自動取得を禁じる条項がないか（termsUrl と termsCheckedAt に記録）",
+    "2. robots.txt が対象パスを許可しているか（crawl.mjs が自動で確認します）",
+    "3. 取得するのが事実情報（名称・会期・料金・公式URL）に限られているか",
+    "enabled を true にしたものだけが取得対象になります。既定はすべて false です。",
+    "紹介文や画像を丸ごと複製すると著作権の問題になります。詳細は公式サイトへリンクしてください。"
+  ],
+  "sources": [
+    {
+      "id": "momat",
+      "museumId": "m1",
+      "museumName": "東京国立近代美術館",
+      "listUrl": "https://www.momat.go.jp/exhibitions",
+      "termsUrl": "https://www.momat.go.jp/",
+      "termsCheckedAt": null,
+      "termsNote": "未確認。利用規約を読み、自動取得の可否を確認してからここに記録すること。",
+      "enabled": false
+    },
+    {
+      "id": "nact",
+      "museumId": "m4",
+      "museumName": "国立新美術館",
+      "listUrl": "https://www.nact.jp/exhibition_special/",
+      "termsUrl": "https://www.nact.jp/",
+      "termsCheckedAt": null,
+      "termsNote": "未確認",
+      "enabled": false
+    },
+    {
+      "id": "kanazawa21",
+      "museumId": "m3",
+      "museumName": "金沢21世紀美術館",
+      "listUrl": "https://www.kanazawa21.jp/exhibit.php",
+      "termsUrl": "https://www.kanazawa21.jp/",
+      "termsCheckedAt": null,
+      "termsNote": "未確認",
+      "enabled": false
+    }
+  ]
+}

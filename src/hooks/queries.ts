@@ -30,6 +30,12 @@ import {
   setFollow,
   setLike,
 } from '../api/social';
+import {
+  createExhibition,
+  updateExhibition,
+  type ExhibitionInput,
+} from '../api/exhibitionsAdmin';
+import { submitReport, type ReportReason, type ReportTarget } from '../api/reports';
 import { useAuth } from '../contexts/AuthContext';
 import type { ClipStatus, Rating, TargetType } from '../types';
 
@@ -279,5 +285,45 @@ export function useDeleteComment() {
       queryClient.invalidateQueries({ queryKey: ['comments', variables.reviewId] });
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
     },
+  });
+}
+
+
+// ---------- 展覧会の登録・編集 ----------
+
+export function useCreateExhibition() {
+  const { userId } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: ExhibitionInput) => createExhibition(userId!, input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['exhibitions'] }),
+  });
+}
+
+export function useUpdateExhibition() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: ExhibitionInput }) => updateExhibition(id, input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['exhibitions'] }),
+  });
+}
+
+// ---------- 通報 ----------
+
+export function useSubmitReport() {
+  const { userId } = useAuth();
+  return useMutation({
+    mutationFn: ({
+      targetType,
+      targetId,
+      reason,
+      detail,
+    }: {
+      targetType: ReportTarget;
+      targetId: string;
+      reason: ReportReason;
+      detail: string;
+    }) => submitReport(userId!, targetType, targetId, reason, detail),
   });
 }

@@ -54,8 +54,8 @@ src/
 └── App.tsx       ルーティングと Provider の定義
 
 supabase/migrations/  スキーマ（0001）、初期データ（0002）、社会性（0003）、座標（0004）
-scripts/              seed SQL の生成スクリプトと、その元データ
-docs/                 セットアップ・デプロイ・ロードマップ
+scripts/              seed 生成、Wikidata 取得、巡回取得と投入
+docs/                 セットアップ・デプロイ・ロードマップ・データ調達
 ```
 
 `@` は `src` のエイリアスです（`vite.config.ts` / `tsconfig.app.json`）。
@@ -73,6 +73,8 @@ docs/                 セットアップ・デプロイ・ロードマップ
 | `/u/:handle` | 公開プロフィール（レビュー・フォロー・フォロワー） |
 | `/tag/:tag` | タグ別のレビュー一覧 |
 | `/timeline` | タイムライン（フォロー中のレビュー、要ログイン） |
+| `/exhibition/new` | 展覧会の登録（要ログイン） |
+| `/exhibition/:id/edit` | 展覧会の編集（自分の登録分のみ） |
 | `/review/new` | レビュー投稿（要ログイン） |
 | `/mypage` | マイページ（クリップ・自分のレビュー、要ログイン） |
 | `/settings/profile` | プロフィール編集（要ログイン） |

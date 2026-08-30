@@ -49,6 +49,8 @@ export interface Museum {
   website: string | null;
 }
 
+export type DataSource = 'seed' | 'wikidata' | 'crawl' | 'user';
+
 export interface Exhibition {
   id: string;
   museumId: string;
@@ -60,6 +62,9 @@ export interface Exhibition {
   imageUrl: string | null;
   officialUrl: string | null;
   genre: string[];
+  source: DataSource;
+  sourceUrl: string | null;
+  createdBy: string | null;
 }
 
 export interface Review {

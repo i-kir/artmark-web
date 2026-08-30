@@ -5,6 +5,7 @@ import StarRating from './StarRating';
 import Avatar from './Avatar';
 import TagChip from './TagChip';
 import CommentSection from './CommentSection';
+import ReportButton from './ReportButton';
 import { useAuth } from '../contexts/AuthContext';
 import { useMyLikes, useSetLike } from '../hooks/queries';
 
@@ -102,6 +103,10 @@ export default function ReviewCard({ review, targetName }: ReviewCardProps) {
           <span>コメント</span>
           {review.commentCount > 0 && <span>{review.commentCount}</span>}
         </button>
+
+        <div className="ml-auto">
+          <ReportButton targetType="review" targetId={review.id} />
+        </div>
       </div>
 
       {showComments && <CommentSection reviewId={review.id} />}

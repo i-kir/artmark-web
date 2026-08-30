@@ -4,6 +4,7 @@ import ExhibitionCard from '../components/ExhibitionCard';
 import MuseumCard from '../components/MuseumCard';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import { daysUntil } from '../lib/period';
+import { Link } from 'react-router-dom';
 import { useExhibitions, useMuseums } from '../hooks/queries';
 import { useGeolocation } from '../hooks/useGeolocation';
 import LocationButton from '../components/LocationButton';
@@ -162,9 +163,25 @@ export default function Search() {
         {error && <ErrorState error={error} />}
         {(museums.isLoading || exhibitions.isLoading) && <Loading />}
 
+        {activeTab === 'exhibition' && (
+          <p className="text-sm text-gray-medium">
+            探している展覧会が見つかりませんか？{' '}
+            <Link to="/exhibition/new" className="text-navy-accent underline">
+              展覧会を登録する
+            </Link>
+          </p>
+        )}
+
         {activeTab === 'exhibition' ? (
           filteredExhibitions.length === 0 && !exhibitions.isLoading ? (
-            <Empty>条件に合う展覧会がありませんでした。</Empty>
+            <Empty>
+              条件に合う展覧会がありませんでした。
+              <br />
+              <Link to="/exhibition/new" className="text-navy-accent underline">
+                展覧会を登録する
+              </Link>
+              から追加できます。
+            </Empty>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredExhibitions.map((ex) => (

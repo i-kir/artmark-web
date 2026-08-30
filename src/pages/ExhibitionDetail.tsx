@@ -3,6 +3,7 @@ import ClipControl from '../components/ClipControl';
 import GenreTag from '../components/GenreTag';
 import PeriodBadge from '../components/PeriodBadge';
 import ReviewList from '../components/ReviewList';
+import SourceNote from '../components/SourceNote';
 import StarRating from '../components/StarRating';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import NotFound from './NotFound';
@@ -66,6 +67,8 @@ export default function ExhibitionDetail() {
             </div>
           </div>
         </div>
+
+        <SourceNote exhibition={exhibition} />
 
         <section>
           <div className="flex flex-wrap gap-4 justify-between items-center mb-6 border-l-4 border-gold pl-3">

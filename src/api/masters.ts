@@ -27,6 +27,9 @@ type ExhibitionRow = {
   price: string;
   image_url: string | null;
   official_url: string | null;
+  source: 'seed' | 'wikidata' | 'crawl' | 'user';
+  source_url: string | null;
+  created_by: string | null;
   exhibition_genres: { genre: string }[] | null;
 };
 
@@ -57,6 +60,9 @@ const toExhibition = (r: ExhibitionRow): Exhibition => ({
   imageUrl: r.image_url,
   officialUrl: r.official_url,
   genre: (r.exhibition_genres ?? []).map((g) => g.genre),
+  source: r.source,
+  sourceUrl: r.source_url,
+  createdBy: r.created_by,
 });
 
 export async function fetchMuseums(): Promise<Museum[]> {

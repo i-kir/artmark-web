@@ -19,20 +19,20 @@ export default function ExhibitionCard({ exhibition, museumName, variant = 'vert
     return (
       <Link
         to={`/exhibition/${exhibition.id}`}
-        className="block bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden"
+        className="block overflow-hidden rounded-2xl bg-white shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-soft"
       >
         <div className="flex p-4">
           {exhibition.imageUrl && (
             <img
               src={exhibition.imageUrl}
               alt=""
-              className="w-32 h-32 object-cover rounded-lg flex-shrink-0"
+              className="h-32 w-32 flex-shrink-0 rounded-xl object-cover"
               loading="lazy"
             />
           )}
           <div className="ml-4 flex flex-col justify-between flex-1 min-w-0">
             <div>
-              <h3 className="text-lg font-bold text-navy line-clamp-1">{exhibition.title}</h3>
+              <h3 className="font-serif text-lg font-semibold text-navy line-clamp-1">{exhibition.title}</h3>
               {museumName && <p className="text-gray-500 text-sm">{museumName}</p>}
             </div>
             <p className="text-gray-600 text-sm">{period}</p>
@@ -49,9 +49,9 @@ export default function ExhibitionCard({ exhibition, museumName, variant = 'vert
   return (
     <Link
       to={`/exhibition/${exhibition.id}`}
-      className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col"
+      className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-soft"
     >
-      <div className="relative aspect-[16/9] w-full bg-gray-200">
+      <div className="relative aspect-[16/9] w-full bg-sand/50">
         {exhibition.imageUrl && (
           <img src={exhibition.imageUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
         )}
@@ -60,7 +60,7 @@ export default function ExhibitionCard({ exhibition, museumName, variant = 'vert
         </div>
       </div>
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="text-lg font-bold text-navy line-clamp-2 mb-1">{exhibition.title}</h3>
+        <h3 className="mb-1 font-serif text-lg font-semibold text-navy line-clamp-2">{exhibition.title}</h3>
         {museumName && <p className="text-gray-500 text-sm mb-2">{museumName}</p>}
         <p className="text-gray-600 text-sm mb-2">{period}</p>
 

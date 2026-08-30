@@ -5,6 +5,9 @@ import MuseumCard from '../components/MuseumCard';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import { daysUntil } from '../lib/period';
 import { useExhibitions, useMuseums } from '../hooks/queries';
+import { useGeolocation } from '../hooks/useGeolocation';
+import LocationButton from '../components/LocationButton';
+import { sortByDistance } from '../lib/geo';
 
 const GENRES = ['全て', '西洋画', '日本画', '現代アート', '写真', '彫刻', 'インスタレーション', 'デザイン', '映像'];
 const PERIODS = [
@@ -25,6 +28,7 @@ export default function Search() {
 
   const museums = useMuseums();
   const exhibitions = useExhibitions();
+  const geo = useGeolocation();
   const error = museums.error ?? exhibitions.error;
 
   const museumById = useMemo(
@@ -62,12 +66,16 @@ export default function Search() {
 
   const filteredMuseums = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    return (museums.data ?? []).filter(
+    const list = (museums.data ?? []).filter(
       (m) =>
         (!term || m.name.toLowerCase().includes(term) || m.nameKana.includes(searchTerm.trim())) &&
         (selectedArea === '全て' || m.area === selectedArea)
     );
-  }, [museums.data, searchTerm, selectedArea]);
+    // 現在地が取れているときだけ、近い順に並べ替える
+    return geo.position
+      ? sortByDistance(list, geo.position)
+      : list.map((m) => ({ ...m, distanceKm: undefined }));
+  }, [museums.data, searchTerm, selectedArea, geo.position]);
 
   return (
     <div className="min-h-screen bg-gray-light py-8">
@@ -126,6 +134,15 @@ export default function Search() {
             </label>
           </div>
 
+          {activeTab === 'museum' && (
+            <LocationButton
+              status={geo.status}
+              message={geo.message}
+              onRequest={geo.request}
+              onClear={geo.clear}
+            />
+          )}
+
           <div className="flex border-b">
             {(['exhibition', 'museum'] as const).map((tab) => (
               <button
@@ -160,7 +177,7 @@ export default function Search() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMuseums.map((m) => (
-              <MuseumCard key={m.id} museum={m} />
+              <MuseumCard key={m.id} museum={m} distanceKm={m.distanceKm} />
             ))}
           </div>
         )}

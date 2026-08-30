@@ -36,7 +36,7 @@ export default function ReviewCard({ review, targetName }: ReviewCardProps) {
   };
 
   return (
-    <div className="rounded-xl bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-5 shadow-card">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <Avatar author={author} size="sm" />

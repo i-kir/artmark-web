@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
@@ -18,6 +19,10 @@ import ProfileEdit from './pages/ProfileEdit';
 import Timeline from './pages/Timeline';
 import Users from './pages/Users';
 import Tag from './pages/Tag';
+import { Loading } from './components/StateMessage';
+
+// 地図ページはそのページを開いたときだけ読み込む（Leaflet 本体は MuseumMap 側で遅延読み込み）
+const MapPage = lazy(() => import('./pages/MapPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,50 +38,53 @@ export default function App() {
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/users" element={<Users />} />
-                <Route path="/u/:handle" element={<Profile />} />
-                <Route path="/tag/:tag" element={<Tag />} />
-                <Route path="/museum/:id" element={<MuseumDetail />} />
-                <Route path="/exhibition/:id" element={<ExhibitionDetail />} />
-                <Route
-                  path="/mypage"
-                  element={
-                    <RequireAuth>
-                      <MyPage />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/review/new"
-                  element={
-                    <RequireAuth>
-                      <ReviewNew />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/timeline"
-                  element={
-                    <RequireAuth>
-                      <Timeline />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/settings/profile"
-                  element={
-                    <RequireAuth>
-                      <ProfileEdit />
-                    </RequireAuth>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Suspense fallback={<Loading />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/search" element={<Search />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/map" element={<MapPage />} />
+                  <Route path="/users" element={<Users />} />
+                  <Route path="/u/:handle" element={<Profile />} />
+                  <Route path="/tag/:tag" element={<Tag />} />
+                  <Route path="/museum/:id" element={<MuseumDetail />} />
+                  <Route path="/exhibition/:id" element={<ExhibitionDetail />} />
+                  <Route
+                    path="/mypage"
+                    element={
+                      <RequireAuth>
+                        <MyPage />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/review/new"
+                    element={
+                      <RequireAuth>
+                        <ReviewNew />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/timeline"
+                    element={
+                      <RequireAuth>
+                        <Timeline />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/settings/profile"
+                    element={
+                      <RequireAuth>
+                        <ProfileEdit />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </main>
             <Footer />
           </div>

@@ -62,18 +62,18 @@ export default function Profile() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-light">
-      <div className="bg-navy-dark px-4 pb-8 pt-12 text-white">
+    <div className="min-h-screen bg-cream">
+      <div className="border-b border-rose-tint bg-gradient-to-br from-rose-tint via-cream to-sand/50 px-4 pb-10 pt-14 text-navy">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 text-center">
           <Avatar author={{ displayName: user.displayName, avatarUrl: user.avatarUrl }} size="lg" />
-          <h1 className="text-2xl font-bold">{user.displayName || user.handle}</h1>
-          <p className="text-sm text-gray-400">@{user.handle}</p>
-          {user.bio && <p className="max-w-xl whitespace-pre-wrap text-sm text-gray-200">{user.bio}</p>}
+          <h1 className="font-serif text-2xl font-semibold">{user.displayName || user.handle}</h1>
+          <p className="text-sm text-gray-medium">@{user.handle}</p>
+          {user.bio && <p className="max-w-xl whitespace-pre-wrap text-sm text-gray-dark">{user.bio}</p>}
 
           {isMe ? (
             <Link
               to="/settings/profile"
-              className="rounded-full border border-gray-500 px-5 py-2 text-sm font-bold transition hover:bg-navy-medium"
+              className="rounded-full border border-rose/40 bg-white/70 px-5 py-2 text-sm font-bold text-rose transition hover:bg-white"
             >
               プロフィールを編集
             </Link>

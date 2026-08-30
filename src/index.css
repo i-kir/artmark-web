@@ -2,8 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  body {
+    margin: 0;
+    background-color: #fbf7f3; /* warm ivory */
+    color: #4a3f39;
+    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 見出しは明朝にして、アート鑑賞の余韻に合う「雑誌」らしい佇まいにする */
+  h1,
+  h2,
+  h3 {
+    font-family: 'Noto Serif JP', Georgia, 'Times New Roman', serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  ::selection {
+    background-color: #ead7cb;
+    color: #3e332e;
+  }
+}
+
+@layer utilities {
+  /* 横スクロールのセクションでスクロールバーを控えめにする */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }

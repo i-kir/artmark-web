@@ -3,6 +3,7 @@ import ClipControl from '../components/ClipControl';
 import ExhibitionCard from '../components/ExhibitionCard';
 import ReviewList from '../components/ReviewList';
 import StarRating from '../components/StarRating';
+import MuseumMap from '../components/MuseumMap';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import NotFound from './NotFound';
 import { useExhibitions, useMuseums, useRatingOf, useTargetReviews } from '../hooks/queries';
@@ -70,6 +71,26 @@ export default function MuseumDetail() {
 
         {museum.description && (
           <p className="text-gray-dark leading-relaxed whitespace-pre-wrap">{museum.description}</p>
+        )}
+
+        {museum.lat !== null && museum.lng !== null && (
+          <section>
+            <h2 className="mb-4 border-l-4 border-gold pl-3 text-2xl font-bold text-navy-dark">場所</h2>
+            <MuseumMap
+              museums={[museum]}
+              center={{ lat: museum.lat, lng: museum.lng }}
+              zoom={16}
+              className="h-72 w-full overflow-hidden rounded-xl"
+            />
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${museum.lat},${museum.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block text-sm text-navy-accent hover:underline"
+            >
+              Google マップで経路を調べる
+            </a>
+          </section>
         )}
 
         <section>

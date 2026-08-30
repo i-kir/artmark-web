@@ -8,6 +8,8 @@ type MuseumRow = {
   address: string;
   prefecture: string;
   area: string;
+  lat: number | null;
+  lng: number | null;
   image_url: string | null;
   description: string;
   opening_hours: string;
@@ -35,6 +37,8 @@ const toMuseum = (r: MuseumRow): Museum => ({
   address: r.address,
   prefecture: r.prefecture,
   area: r.area,
+  lat: r.lat,
+  lng: r.lng,
   imageUrl: r.image_url,
   description: r.description,
   openingHours: r.opening_hours,

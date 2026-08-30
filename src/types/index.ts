@@ -40,6 +40,8 @@ export interface Museum {
   address: string;
   prefecture: string;
   area: string;
+  lat: number | null;
+  lng: number | null;
   imageUrl: string | null;
   description: string;
   openingHours: string;

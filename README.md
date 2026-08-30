@@ -14,6 +14,7 @@
 | ルーティング | React Router 6 |
 | スタイル | Tailwind CSS 3 |
 | データ / 認証 | Supabase (PostgreSQL, Auth) |
+| 地図 | Leaflet + OpenStreetMap |
 | データ取得 | TanStack Query |
 | Lint | ESLint 9 (typescript-eslint) |
 | ホスティング | Vercel |
@@ -52,7 +53,7 @@ src/
 ├── types/        Museum, Exhibition, Review, Profile, Clip
 └── App.tsx       ルーティングと Provider の定義
 
-supabase/migrations/  スキーマ（0001）と初期データ（0002）
+supabase/migrations/  スキーマ（0001）、初期データ（0002）、社会性（0003）、座標（0004）
 scripts/              seed SQL の生成スクリプトと、その元データ
 docs/                 セットアップ・デプロイ・ロードマップ
 ```
@@ -64,7 +65,8 @@ docs/                 セットアップ・デプロイ・ロードマップ
 | ルート | 画面 |
 | --- | --- |
 | `/` | ホーム（まもなく終了する展覧会・開催中・最新レビュー） |
-| `/search` | 検索（キーワード・ジャンル・エリア・会期） |
+| `/search` | 検索（キーワード・ジャンル・エリア・会期・現在地から近い順） |
+| `/map` | 地図から探す（現在地・開催中の絞り込み） |
 | `/museum/:id` | 美術館詳細 |
 | `/exhibition/:id` | 展覧会詳細 |
 | `/users` | ユーザー検索 |

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import ExhibitionCard from '../components/ExhibitionCard';
 import MuseumCard from '../components/MuseumCard';
 import ReviewList from '../components/ReviewList';
+import EndingSoonClips from '../components/EndingSoonClips';
 import { Empty, ErrorState, Loading } from '../components/StateMessage';
 import { useAuth } from '../contexts/AuthContext';
 import { useExhibitions, useMuseums, useMyClips, useMyReviews, useProfileStats } from '../hooks/queries';
@@ -66,35 +67,35 @@ export default function MyPage() {
   const displayName = profile?.displayName || session?.user.email || 'ユーザー';
 
   return (
-    <div className="min-h-screen bg-gray-light">
-      <div className="bg-navy-dark text-white pt-12 pb-8">
+    <div className="min-h-screen bg-cream">
+      <div className="border-b border-rose-tint bg-gradient-to-br from-rose-tint via-cream to-sand/50 pt-14 pb-10 text-navy">
         <div className="max-w-6xl mx-auto px-4 flex flex-col items-center space-y-4">
-          <div className="w-24 h-24 bg-navy-medium rounded-full grid place-items-center border-2 border-gold text-3xl">
+          <div className="w-24 h-24 bg-white rounded-full grid place-items-center border-2 border-rose/40 font-serif text-3xl text-rose shadow-soft">
             {displayName.slice(0, 1).toUpperCase()}
           </div>
-          <h1 className="text-2xl font-bold">{displayName}</h1>
-          {profile?.handle && <p className="text-sm text-gray-400">@{profile.handle}</p>}
+          <h1 className="font-serif text-2xl font-semibold">{displayName}</h1>
+          {profile?.handle && <p className="text-sm text-gray-medium">@{profile.handle}</p>}
 
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-6 bg-navy-medium px-6 sm:px-8 py-4 rounded-lg">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-6 bg-white/70 px-6 sm:px-8 py-4 rounded-2xl shadow-soft">
             <div className="text-center">
-              <div className="text-sm text-gray-400">行った</div>
-              <div className="text-xl font-bold text-gold">{visitedClips.length}</div>
+              <div className="text-sm text-gray-medium">行った</div>
+              <div className="text-xl font-bold text-rose">{visitedClips.length}</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-400">行きたい</div>
-              <div className="text-xl font-bold text-gold">{wantClips.length}</div>
+              <div className="text-sm text-gray-medium">行きたい</div>
+              <div className="text-xl font-bold text-rose">{wantClips.length}</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-400">レビュー</div>
-              <div className="text-xl font-bold text-gold">{(reviews.data ?? []).length}</div>
+              <div className="text-sm text-gray-medium">レビュー</div>
+              <div className="text-xl font-bold text-rose">{(reviews.data ?? []).length}</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-400">フォロー中</div>
-              <div className="text-xl font-bold text-gold">{stats.data?.followingCount ?? 0}</div>
+              <div className="text-sm text-gray-medium">フォロー中</div>
+              <div className="text-xl font-bold text-rose">{stats.data?.followingCount ?? 0}</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-400">フォロワー</div>
-              <div className="text-xl font-bold text-gold">{stats.data?.followerCount ?? 0}</div>
+              <div className="text-sm text-gray-medium">フォロワー</div>
+              <div className="text-xl font-bold text-rose">{stats.data?.followerCount ?? 0}</div>
             </div>
           </div>
 
@@ -102,13 +103,13 @@ export default function MyPage() {
             <div className="flex gap-3">
               <Link
                 to={`/u/${profile.handle}`}
-                className="rounded-full border border-gray-500 px-4 py-1.5 text-sm transition hover:bg-navy-medium"
+                className="rounded-full border border-rose/40 bg-white/70 px-4 py-1.5 text-sm text-rose transition hover:bg-white"
               >
                 公開プロフィール
               </Link>
               <Link
                 to="/settings/profile"
-                className="rounded-full border border-gray-500 px-4 py-1.5 text-sm transition hover:bg-navy-medium"
+                className="rounded-full border border-rose/40 bg-white/70 px-4 py-1.5 text-sm text-rose transition hover:bg-white"
               >
                 編集
               </Link>
@@ -119,6 +120,10 @@ export default function MyPage() {
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         {error && <ErrorState error={error} />}
+
+        <div className="mb-8">
+          <EndingSoonClips />
+        </div>
 
         <div className="flex border-b border-gray-300 mb-8">
           {TABS.map((tab) => (

@@ -5,6 +5,7 @@ import NotFound from './NotFound';
 import { useAuth } from '../contexts/AuthContext';
 import { useCreateExhibition, useExhibitions, useMuseums, useUpdateExhibition } from '../hooks/queries';
 import type { ExhibitionInput } from '../api/exhibitionsAdmin';
+import { extractExhibition, type Extracted } from '../api/extract';
 
 const GENRES = ['西洋画', '日本画', '現代アート', '写真', '彫刻', 'インスタレーション', 'デザイン', '映像'];
 
@@ -32,6 +33,10 @@ export default function ExhibitionEdit() {
   const updateExhibition = useUpdateExhibition();
 
   const [form, setForm] = useState<ExhibitionInput>(EMPTY);
+  const [importUrl, setImportUrl] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<Extracted | null>(null);
+  const [importError, setImportError] = useState('');
   const existing = isEdit ? exhibitions.data?.find((e) => e.id === id) : undefined;
 
   useEffect(() => {
@@ -68,6 +73,35 @@ export default function ExhibitionEdit() {
 
   const set = <K extends keyof ExhibitionInput>(key: K, value: ExhibitionInput[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleImport = async () => {
+    const url = importUrl.trim();
+    if (!url) return;
+
+    setImporting(true);
+    setImportError('');
+    setImportResult(null);
+
+    try {
+      const result = await extractExhibition(url);
+      setImportResult(result);
+      // 読み取れた項目だけを埋める。空欄で上書きして入力済みの内容を消さない
+      setForm((prev) => ({
+        ...prev,
+        title: result.title || prev.title,
+        startDate: result.startDate || prev.startDate,
+        endDate: result.endDate || prev.endDate,
+        price: result.price || prev.price,
+        imageUrl: result.imageUrl || prev.imageUrl,
+        description: result.description || prev.description,
+        officialUrl: result.sourceUrl || prev.officialUrl,
+      }));
+    } catch (error) {
+      setImportError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setImporting(false);
+    }
+  };
 
   const toggleGenre = (genre: string) =>
     set('genre', form.genre.includes(genre) ? form.genre.filter((g) => g !== genre) : [...form.genre, genre]);
@@ -109,6 +143,62 @@ export default function ExhibitionEdit() {
           公式サイトに載っている事実（名称・会期・料金）を入力してください。
           紹介文は公式サイトからの転載ではなく、ご自身の言葉でお願いします。
         </p>
+
+        <div className="mb-8 rounded-lg border border-gold-light bg-gold-light/30 p-4">
+          <label htmlFor="importUrl" className="mb-2 block text-sm font-bold text-navy-dark">
+            公式ページの URL から下書きを作る
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              id="importUrl"
+              type="url"
+              value={importUrl}
+              onChange={(e) => setImportUrl(e.target.value)}
+              placeholder="https://www.example-museum.jp/exhibition/..."
+              className="flex-1 rounded-md border border-gray-300 px-3 py-2 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+            />
+            <button
+              type="button"
+              onClick={handleImport}
+              disabled={!importUrl.trim() || importing}
+              className="shrink-0 rounded-md bg-navy px-5 py-2 font-bold text-white transition hover:bg-navy-medium disabled:opacity-50"
+            >
+              {importing ? '読み込み中...' : '読み込む'}
+            </button>
+          </div>
+
+          {importError && <p className="mt-2 text-sm text-red-600">{importError}</p>}
+
+          {importResult && (
+            <div className="mt-3 text-sm">
+              <p
+                className={
+                  importResult.confidence === 'high'
+                    ? 'font-medium text-green-700'
+                    : importResult.confidence === 'medium'
+                      ? 'font-medium text-navy-accent'
+                      : 'font-medium text-red-600'
+                }
+              >
+                {importResult.confidence === 'high'
+                  ? '構造化データから読み取れました'
+                  : importResult.confidence === 'medium'
+                    ? '本文から推測しました。内容を確認してください'
+                    : '会期を読み取れませんでした'}
+              </p>
+              <ul className="mt-1 text-xs text-gray-medium">
+                {importResult.notes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <p className="mt-3 text-xs text-gray-medium">
+            読み取った内容は下の欄に入ります。<strong>必ず目で確認してから</strong>保存してください。
+            紹介文は公式サイトの説明文がそのまま入ることがあるため、ご自身の言葉に書き換えてください。
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

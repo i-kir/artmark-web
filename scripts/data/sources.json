@@ -15,7 +15,7 @@
       "listUrl": "https://www.momat.go.jp/exhibitions",
       "termsUrl": "https://www.momat.go.jp/",
       "termsCheckedAt": null,
-      "termsNote": "未確認。利用規約を読み、自動取得の可否を確認してからここに記録すること。",
+      "termsNote": "未確認。2026-10-25 に Claude が確認を試みたが、規約ページに到達できなかった（取得不可）。フッターの規約ページを手動で読んで記録すること。",
       "enabled": false
     },
     {
@@ -23,9 +23,9 @@
       "museumId": "m4",
       "museumName": "国立新美術館",
       "listUrl": "https://www.nact.jp/exhibition_special/",
-      "termsUrl": "https://www.nact.jp/",
-      "termsCheckedAt": null,
-      "termsNote": "未確認",
+      "termsUrl": "https://www.nact.jp/policy/index.html",
+      "termsCheckedAt": "2026-10-25",
+      "termsNote": "2026-10-25 に Claude が規約ページを確認（本文の要約経由）。自動取得・クローリング・robots への言及はなく、禁止条項は見当たらない。著作権の条項は作品画像・文書・資料の複製・送信等を許諾なく第三者の利用に供することを禁じており、本ツールが取る事実情報（名称・会期・料金・公式URL）は対象外と解釈している。展覧会の名称・会期等の事実情報の利用についての記載はない。robots.txt は未確認（実行時に crawl.mjs が自動確認）。画像と紹介文は取得しない。",
       "enabled": false
     },
     {
@@ -35,7 +35,7 @@
       "listUrl": "https://www.mori.art.museum/jp/exhibitions/",
       "termsUrl": "https://www.mori.art.museum/jp/",
       "termsCheckedAt": null,
-      "termsNote": "未確認",
+      "termsNote": "未確認。2026-10-25 に Claude が確認を試みたが、規約ページに到達できなかった（取得不可）。フッターの規約ページを手動で読んで記録すること。",
       "extract": "llm",
       "enabled": false
     },
@@ -46,7 +46,7 @@
       "listUrl": "https://www.kanazawa21.jp/exhibit.php",
       "termsUrl": "https://www.kanazawa21.jp/",
       "termsCheckedAt": null,
-      "termsNote": "未確認",
+      "termsNote": "未確認。2026-10-25 に Claude が確認を試みたが、規約ページに到達できなかった（取得不可）。フッターの規約ページを手動で読んで記録すること。",
       "enabled": false
     }
   ]

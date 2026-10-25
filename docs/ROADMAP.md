@@ -214,6 +214,7 @@ Leaflet 本体は 156KB あるため、地図を表示する画面でのみ遅�
 - [x] Wikidata からの美術館取得スクリプト（`scripts/data/fetch-wikidata-museums.mjs`）
 - [x] robots.txt 確認・レート制限・条件付きGET を備えた巡回取得（`scripts/data/crawl.mjs`）
 - [x] schema.org の JSON-LD からの展覧会抽出
+- [x] JSON-LD が無い館向けの LLM 抽出フォールバック（`scripts/data/lib/llm-extract.mjs`）
 - [x] 重複排除つきの Supabase 投入（`scripts/data/ingest.mjs`）
 - [x] ユーザーによる展覧会の登録・編集（`/exhibition/new`）
 - [x] 通報機能と管理者フラグ
@@ -221,7 +222,7 @@ Leaflet 本体は 156KB あるため、地図を表示する画面でのみ遅�
 - [ ] `0005_data_sources.sql` を実行し、自分を管理者にする
 - [ ] 取得先の利用規約を確認して `sources.json` を有効化する
 - [ ] 通報の一覧画面（当面は Supabase の Table Editor で代用）
-- [ ] GitHub Actions での定期実行
+- [x] GitHub Actions での定期実行（`.github/workflows/crawl-exhibitions.yml`。Secrets の設定と初回の手動確認が必要）
 
 手順と、守るべき線引きは [docs/DATA.md](DATA.md) にまとめてあります。
 

@@ -84,16 +84,39 @@ node scripts/data/crawl.mjs
 node scripts/data/crawl.mjs --only momat --dry-run
 ```
 
-### 構造化データが無いサイト
+### 抽出の順序（JSON-LD → LLM）
 
-まず schema.org の JSON-LD（`ExhibitionEvent` / `Event`）を探します。
-最近のサイトの多くはこれを埋めており、HTML の見た目に依存しないので一番壊れにくい方法です。
+1. まず schema.org の JSON-LD（`ExhibitionEvent` / `Event`）を探します。
+   HTML の見た目に依存しないので一番壊れにくい方法です。
+2. JSON-LD から1件も取れなければ、`ANTHROPIC_API_KEY` がある場合に限り
+   **Claude で一覧ページの本文から抽出**します（`scripts/data/lib/llm-extract.mjs`）。
+   館ごとのパーサーを書かずに済み、サイトの改修にも強い方法です。
 
-見つからない場合は「個別の抽出処理が必要」と表示されます。
-その館向けの抽出関数を `scripts/data/lib/` に追加することになりますが、
-**CSS セレクタ頼みの抽出はサイト改修のたびに壊れます。** 数が増えると保守しきれません。
+`sources.json` の `"extract"` で取得先ごとに固定できます（`"auto"` 既定 / `"jsonld"` / `"llm"`）。
+`--no-llm` を付けると JSON-LD だけを使います。
 
-現実的には、JSON-LD のある館だけ自動取得し、残りはユーザー投稿で補うのが長続きします。
+```bash
+# .env.scripts に ANTHROPIC_API_KEY を記入してから
+node scripts/data/crawl.mjs --only mori --dry-run
+```
+
+LLM は誤った値を返すことがあるため、返ってきた値は必ず検証します。
+
+- 日付は実在する `YYYY-MM-DD` で、終了日が開始日以降
+- **タイトルが実際にページ本文に現れていること**（でっち上げの排除）
+- 公式URLはページ内のリンクに実在するものだけ採用（無ければ一覧ページへ）
+- 紹介文と画像は取らない（事実情報のみ）
+
+却下された項目は理由つきで画面に表示されます。同じ本文・同じ日付なら前回の結果を
+`scripts/data/.cache/llm.json` から再利用し、API を呼びません。
+モデルは `ARTMARK_LLM_MODEL` で変えられます（既定は軽量な `claude-haiku-5-5`）。
+
+注意点:
+
+- JS で描画されるページ（本文が取れない）は抽出できません。その場合は明示エラーになります。
+- **LLM 抽出でも、規約確認と robots.txt の遵守は同じく必須です。** 抽出方法が変わるだけで、
+  取得してよいかの判断は変わりません。
+- ページ本文は Anthropic の API に送られます（一覧ページの公開情報のみ）。
 
 ---
 
@@ -116,9 +139,29 @@ Vercel に設定したりは絶対にしないでください。漏れたら即�
 
 ### 定期実行
 
-慣れてきたら GitHub Actions で回せます。`SUPABASE_SERVICE_ROLE_KEY` は
-リポジトリの Secrets に置きます。週1回で十分です。展覧会の会期は
-そう頻繁には変わりません。
+`.github/workflows/crawl-exhibitions.yml` が、毎週月曜 06:17 JST に
+`crawl.mjs` → `ingest.mjs` を実行します。展覧会の会期はそう頻繁には変わらないので週1回で十分です。
+
+**リポジトリの設定（Settings → Secrets and variables → Actions）**
+
+| 種別 | 名前 | 内容 |
+| --- | --- | --- |
+| Secret | `SUPABASE_URL` | Supabase プロジェクトの URL |
+| Secret | `SUPABASE_SERVICE_ROLE_KEY` | service_role キー（Vercel や `VITE_` には置かない） |
+| Secret | `ANTHROPIC_API_KEY` | LLM 抽出用。未設定なら JSON-LD のみで動く |
+| Variable | `ARTMARK_USER_AGENT` | 連絡先入りの UA。**ASCII のみ**（例: `ArtMarkBot/0.1 (+https://artmark-web.vercel.app; contact: you@example.com)`） |
+
+**初回は手動で確認してから**:
+
+1. Actions タブ → "Crawl exhibitions" → Run workflow。`dry_run`（既定オン）のまま実行して、取得結果と却下理由をログで確認する
+2. 問題なければ `dry_run` をオフにして実行し、Supabase に入ることを確認する
+3. 以降は定期実行に任せる
+
+`only` に取得先の id（例: `mori`）を入れると、その館だけ実行します。
+取得先は `sources.json` の `enabled: true` のものだけで、既定はすべて false です。
+ETag と LLM 抽出結果は Actions のキャッシュに残り、変更のないページは取り直しません。
+
+失敗すると GitHub から通知が届きます（robots.txt や規約による「スキップ」は失敗扱いにしません）。
 
 ---
 

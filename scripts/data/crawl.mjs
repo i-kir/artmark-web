@@ -5,13 +5,20 @@
 //   node scripts/data/crawl.mjs --dry-run         取得して結果を表示（保存しない）
 //   node scripts/data/crawl.mjs                   取得して data/exhibitions.json に保存
 //   node scripts/data/crawl.mjs --only momat      特定の取得先だけ
+//   node scripts/data/crawl.mjs --no-llm          JSON-LD のみ（LLM 抽出を使わない）
+//
+// JSON-LD で取れなかった取得先は、ANTHROPIC_API_KEY があれば Claude で本文から抽出します
+// （scripts/data/lib/llm-extract.mjs）。sources.json の "extract" で取得先ごとに
+// "auto"（既定）/ "jsonld" / "llm" を固定できます。
 //
 // 取得するのは事実情報（名称・会期・料金・公式URL）だけです。
 // 紹介文や画像を複製せず、詳細は公式サイトへリンクします。
+import './lib/env.mjs'; // 他の import より先に（.env.scripts を読んでから http.mjs が UA を決める）
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { checkRobots } from './lib/robots.mjs';
 import { politeFetch } from './lib/http.mjs';
 import { extractEvents, toExhibition } from './lib/jsonld.mjs';
+import { extractWithLlm } from './lib/llm-extract.mjs';
 
 const args = process.argv.slice(2);
 const has = (flag) => args.includes(flag);
@@ -92,19 +99,48 @@ async function main() {
       continue;
     }
 
-    const events = extractEvents(res.body);
-    log(`   JSON-LD の Event: ${events.length}件`);
+    const fetchedAt = new Date().toISOString();
+    const mode = source.extract ?? 'auto'; // 'auto' | 'jsonld' | 'llm'
 
-    if (events.length === 0) {
-      log('   → 構造化データが見つかりません。このサイトは個別の抽出処理が必要です。');
-      log('     docs/DATA.md の「取得先を追加する」を参照してください。');
+    // 1) JSON-LD（あれば最優先。HTML の見た目に依存しない）
+    let found = [];
+    if (mode !== 'llm') {
+      const events = extractEvents(res.body);
+      log(`   JSON-LD の Event: ${events.length}件`);
+      for (const event of events) {
+        const exhibition = toExhibition(event, { museumId: source.museumId, sourceUrl: source.listUrl });
+        if (exhibition) found.push(exhibition);
+      }
+    }
+
+    // 2) JSON-LD から1件も取れなければ LLM 抽出にフォールバック
+    if (found.length === 0 && mode !== 'jsonld') {
+      if (has('--no-llm')) {
+        log('   → --no-llm のため LLM 抽出はしません。');
+      } else if (!process.env.ANTHROPIC_API_KEY) {
+        log('   → 構造化データなし。LLM 抽出には ANTHROPIC_API_KEY が必要です（未設定）。');
+      } else {
+        try {
+          const { accepted, rejected, cached } = await extractWithLlm(res.body, {
+            museumId: source.museumId,
+            museumName: source.museumName,
+            sourceUrl: source.listUrl,
+          });
+          log(`   LLM 抽出${cached ? '（前回と同じ本文のためキャッシュ）' : ''}: 採用 ${accepted.length}件 / 却下 ${rejected.length}件`);
+          for (const r of rejected) log(`     ✗ ${r.title} — ${r.reason}`);
+          found = accepted;
+        } catch (error) {
+          log(`   ✗ LLM 抽出に失敗: ${error.message}`);
+        }
+      }
+    }
+
+    if (found.length === 0) {
+      log('   → この取得先から展覧会を取得できませんでした。');
       continue;
     }
 
-    const fetchedAt = new Date().toISOString();
-    for (const event of events) {
-      const exhibition = toExhibition(event, { museumId: source.museumId, sourceUrl: source.listUrl });
-      if (!exhibition) continue;
+    for (const exhibition of found) {
       results.push({ ...exhibition, source: 'crawl', sourceId: source.id, fetchedAt });
       log(`   ・${exhibition.title}（${exhibition.startDate} 〜 ${exhibition.endDate}）`);
     }

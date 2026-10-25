@@ -7,7 +7,8 @@ import { dirname } from 'node:path';
 
 export const USER_AGENT =
   process.env.ARTMARK_USER_AGENT ??
-  'ArtMarkBot/0.1 (+https://artmark-web.vercel.app; 展覧会情報の収集; 連絡先は README を参照)';
+  // HTTP ヘッダーは ASCII のみ。日本語を入れると fetch が例外を投げる
+  'ArtMarkBot/0.1 (+https://artmark-web.vercel.app; exhibition info collection; see README for contact)';
 
 const MIN_INTERVAL_MS = Number(process.env.ARTMARK_CRAWL_INTERVAL_MS ?? 1000);
 const lastRequestAt = new Map();

@@ -29,6 +29,17 @@
       "enabled": false
     },
     {
+      "id": "mori",
+      "museumId": "m2",
+      "museumName": "森美術館",
+      "listUrl": "https://www.mori.art.museum/jp/exhibitions/",
+      "termsUrl": "https://www.mori.art.museum/jp/",
+      "termsCheckedAt": null,
+      "termsNote": "未確認",
+      "extract": "llm",
+      "enabled": false
+    },
+    {
       "id": "kanazawa21",
       "museumId": "m3",
       "museumName": "金沢21世紀美術館",

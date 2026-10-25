@@ -13,9 +13,9 @@
       "museumId": "m1",
       "museumName": "東京国立近代美術館",
       "listUrl": "https://www.momat.go.jp/exhibitions",
-      "termsUrl": "https://www.momat.go.jp/",
-      "termsCheckedAt": null,
-      "termsNote": "未確認。2026-10-25 に Claude が確認を試みたが、規約ページに到達できなかった（取得不可）。フッターの規約ページを手動で読んで記録すること。",
+      "termsUrl": "https://www.momat.go.jp/en/site-policy",
+      "termsCheckedAt": "2026-10-25",
+      "termsNote": "2026-10-25 に Claude がサイトポリシー（英語版）と複製に関するページを確認（本文の要約経由）。自動取得・クローリング・robots への言及はなく、禁止条項は見当たらない。著作権の条項は「コンテンツと作品を個人利用の範囲を超えて使うこと」「許可なく複製・送信等で第三者に提供すること」を禁じており、画像のSNS・ブログでの共有も個人利用とみなさないとある。本ツールが取る事実情報（名称・会期・料金・公式URL）が「コンテンツ」に含まれるかは明記されておらず、国立新美術館より解釈の余地が大きい。日本語版の規約は未確認。robots.txt は実行時に crawl.mjs が自動確認。画像と紹介文は取得しない。",
       "enabled": false
     },
     {
@@ -35,7 +35,7 @@
       "listUrl": "https://www.mori.art.museum/jp/exhibitions/",
       "termsUrl": "https://www.mori.art.museum/jp/",
       "termsCheckedAt": null,
-      "termsNote": "未確認。2026-10-25 に Claude が確認を試みたが、規約ページに到達できなかった（取得不可）。フッターの規約ページを手動で読んで記録すること。",
+      "termsNote": "未確認。2026-10-25 に Claude が確認を試みた。森美術館のサイトポリシーは「https://art-view.roppongihills.com/jp/conditions/」（フッターの「クレジット・利用条件」）だが、取得できず未確認。手動で読んで記録すること。",
       "extract": "llm",
       "enabled": false
     },
@@ -46,7 +46,7 @@
       "listUrl": "https://www.kanazawa21.jp/exhibit.php",
       "termsUrl": "https://www.kanazawa21.jp/",
       "termsCheckedAt": null,
-      "termsNote": "未確認。2026-10-25 に Claude が確認を試みたが、規約ページに到達できなかった（取得不可）。フッターの規約ページを手動で読んで記録すること。",
+      "termsNote": "未確認。2026-10-25 に Claude が確認を試みた。サイトポリシーは「https://www.kanazawa21.jp/data_list.php?g=60&d=1」だが、本文を取得できず未確認。手動で読んで記録すること。",
       "enabled": false
     }
   ]

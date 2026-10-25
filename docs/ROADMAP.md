@@ -222,7 +222,7 @@ Leaflet 本体は 156KB あるため、地図を表示する画面でのみ遅�
 - [ ] `0005_data_sources.sql` を実行し、自分を管理者にする
 - [ ] 取得先の利用規約を確認して `sources.json` を有効化する
 - [ ] 通報の一覧画面（当面は Supabase の Table Editor で代用）
-- [ ] GitHub Actions での定期実行
+- [x] GitHub Actions での定期実行（`.github/workflows/crawl-exhibitions.yml`。Secrets の設定と初回の手動確認が必要）
 
 手順と、守るべき線引きは [docs/DATA.md](DATA.md) にまとめてあります。
 

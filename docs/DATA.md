@@ -139,9 +139,29 @@ Vercel に設定したりは絶対にしないでください。漏れたら即�
 
 ### 定期実行
 
-慣れてきたら GitHub Actions で回せます。`SUPABASE_SERVICE_ROLE_KEY` は
-リポジトリの Secrets に置きます。週1回で十分です。展覧会の会期は
-そう頻繁には変わりません。
+`.github/workflows/crawl-exhibitions.yml` が、毎週月曜 06:17 JST に
+`crawl.mjs` → `ingest.mjs` を実行します。展覧会の会期はそう頻繁には変わらないので週1回で十分です。
+
+**リポジトリの設定（Settings → Secrets and variables → Actions）**
+
+| 種別 | 名前 | 内容 |
+| --- | --- | --- |
+| Secret | `SUPABASE_URL` | Supabase プロジェクトの URL |
+| Secret | `SUPABASE_SERVICE_ROLE_KEY` | service_role キー（Vercel や `VITE_` には置かない） |
+| Secret | `ANTHROPIC_API_KEY` | LLM 抽出用。未設定なら JSON-LD のみで動く |
+| Variable | `ARTMARK_USER_AGENT` | 連絡先入りの UA。**ASCII のみ**（例: `ArtMarkBot/0.1 (+https://artmark-web.vercel.app; contact: you@example.com)`） |
+
+**初回は手動で確認してから**:
+
+1. Actions タブ → "Crawl exhibitions" → Run workflow。`dry_run`（既定オン）のまま実行して、取得結果と却下理由をログで確認する
+2. 問題なければ `dry_run` をオフにして実行し、Supabase に入ることを確認する
+3. 以降は定期実行に任せる
+
+`only` に取得先の id（例: `mori`）を入れると、その館だけ実行します。
+取得先は `sources.json` の `enabled: true` のものだけで、既定はすべて false です。
+ETag と LLM 抽出結果は Actions のキャッシュに残り、変更のないページは取り直しません。
+
+失敗すると GitHub から通知が届きます（robots.txt や規約による「スキップ」は失敗扱いにしません）。
 
 ---
 

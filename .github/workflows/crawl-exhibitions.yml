@@ -1,0 +1,77 @@
+name: Crawl exhibitions
+
+# 展覧会情報の巡回取得（JSON-LD → LLM 抽出）と Supabase への投入。
+# 週1回、毎週月曜 06:17 JST に実行。手動実行も可（dry_run で投入せず結果だけ確認できる）。
+# 取得対象は scripts/data/sources.json の enabled: true の館だけ。
+# 手順と守るべき線引きは docs/DATA.md を参照。
+
+on:
+  schedule:
+    - cron: '17 21 * * 0' # 日曜 21:17 UTC = 月曜 06:17 JST（毎正時を避けて混雑を回避）
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Supabase に投入せず、取得結果の表示だけ行う'
+        type: boolean
+        default: true
+      only:
+        description: '特定の取得先だけ実行する（sources.json の id。空なら全件）'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+# 同時に2本走らせない（同一ホストへの負荷と、投入の競合を避ける）
+concurrency:
+  group: crawl-exhibitions
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # service_role キーは RLS を無視できる管理者キー。Secrets にのみ置くこと
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      # 未設定なら JSON-LD のみで取得し、LLM 抽出はスキップされる
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # 相手サイトに連絡先を名乗る。ASCII のみ（Repository variables に設定）
+      ARTMARK_USER_AGENT: ${{ vars.ARTMARK_USER_AGENT }}
+      # 手動実行のときだけ入力値を使う。定期実行は常に本番投入
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+      ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.only || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      # ETag / Last-Modified と LLM 抽出結果のキャッシュ。
+      # 変わっていないページを取り直さず、API も呼ばない（相手への負荷と費用の両方を抑える）
+      - name: Restore crawl cache
+        uses: actions/cache@v4
+        with:
+          path: scripts/data/.cache
+          key: crawl-cache-${{ github.run_id }}
+          restore-keys: crawl-cache-
+
+      - name: Check robots.txt and terms
+        run: node scripts/data/crawl.mjs --check
+
+      - name: Crawl
+        run: |
+          args=()
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          node scripts/data/crawl.mjs "${args[@]}"
+
+      - name: Ingest into Supabase
+        if: env.DRY_RUN != 'true'
+        run: node scripts/data/ingest.mjs

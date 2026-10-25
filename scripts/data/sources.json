@@ -33,9 +33,9 @@
       "museumId": "m2",
       "museumName": "森美術館",
       "listUrl": "https://www.mori.art.museum/jp/exhibitions/",
-      "termsUrl": "https://www.mori.art.museum/jp/",
-      "termsCheckedAt": null,
-      "termsNote": "未確認。2026-10-25 に Claude が確認を試みた。森美術館のサイトポリシーは「https://art-view.roppongihills.com/jp/conditions/」（フッターの「クレジット・利用条件」）だが、取得できず未確認。手動で読んで記録すること。",
+      "termsUrl": "https://art-view.roppongihills.com/jp/conditions/",
+      "termsCheckedAt": "2026-10-25",
+      "termsNote": "2026-10-25 に、利用者が貼り付けた「クレジット・利用条件」（運営: 森ビル株式会社）の全文を Claude が確認。自動取得・クローリング・ロボット・機械的収集への言及はなく、禁止条項は見当たらない。著作権の条項は、文章・画像・写真・動画等の「コンテンツ」を、私的使用の範囲を超えて複製・公衆送信・転載等することを書面承諾なしに行うことを禁じている。展覧会の名称・会期などの事実情報の扱いは明記されておらず、東京国立近代美術館と同程度の解釈の余地がある。robots.txt は実行時に crawl.mjs が自動確認。画像と紹介文は取得しない。",
       "extract": "llm",
       "enabled": false
     },
@@ -46,7 +46,7 @@
       "listUrl": "https://www.kanazawa21.jp/exhibit.php",
       "termsUrl": "https://www.kanazawa21.jp/",
       "termsCheckedAt": null,
-      "termsNote": "未確認。2026-10-25 に Claude が確認を試みた。サイトポリシーは「https://www.kanazawa21.jp/data_list.php?g=60&d=1」だが、本文を取得できず未確認。手動で読んで記録すること。",
+      "termsNote": "未確認。2026-10-25 に、利用者が貼り付けた data_list.php?g=60&d=1 の全文を Claude が確認したが、これは「個人情報の取り扱いについて」（財団の個人情報保護規程）で、サイトの利用条件ではなかった。フッターは © 表記のみで、利用条件・著作権・自動取得に関する記述は、確認できた範囲では見つかっていない。専用の規約ページが存在するかを、サイト内で手動で確認すること。",
       "enabled": false
     }
   ]

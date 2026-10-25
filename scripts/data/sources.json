@@ -26,7 +26,7 @@
       "termsUrl": "https://www.nact.jp/policy/index.html",
       "termsCheckedAt": "2026-10-25",
       "termsNote": "2026-10-25 に Claude が規約ページを確認（本文の要約経由）。自動取得・クローリング・robots への言及はなく、禁止条項は見当たらない。著作権の条項は作品画像・文書・資料の複製・送信等を許諾なく第三者の利用に供することを禁じており、本ツールが取る事実情報（名称・会期・料金・公式URL）は対象外と解釈している。展覧会の名称・会期等の事実情報の利用についての記載はない。robots.txt は未確認（実行時に crawl.mjs が自動確認）。画像と紹介文は取得しない。",
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "mori",
